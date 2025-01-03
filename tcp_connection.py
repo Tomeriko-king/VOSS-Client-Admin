@@ -38,7 +38,7 @@ def handle_authentication(client_socket):
     while True:
         if not messages_queue.empty():
             label = messages_queue.get()
-            client_socket.send(label.value.encode())
+            client_socket.send(label)
             response = client_socket.recv(64)
             if response == AuthenticationStatus.RECEIVED_OK:
                 continue
