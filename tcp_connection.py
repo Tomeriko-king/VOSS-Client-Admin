@@ -34,6 +34,11 @@ def send_hand_side(label: HandSide):
     messages_queue.put(label.value.encode())
 
 
+def request_screenshot(ip_address: str):
+    message = b'screenshot-' + ip_address.encode()
+    messages_queue.put(message)
+
+
 def handle_authentication(client_socket):
     while True:
         if not messages_queue.empty():
@@ -48,10 +53,21 @@ def handle_authentication(client_socket):
                 return True
 
 
+def handle_screenshot(client_socket, command: bytes):
+    client_socket.send(command)
+    response = client_socket.recv(64)
+    'screenshot-is-ready:{filename}'
+
+
+
 def handle_session(client_socket):
     succeeded = handle_authentication(client_socket)
     print(f"Authentication succeeded: {succeeded}")
-    ...
+    while True:
+        if not messages_queue.empty():
+            command = messages_queue.get()
+            if command.startswith(b'screenshot-'):
+                handle_screenshot(client_socket, command)
 
     # Close the socket connection
     client_socket.close()
