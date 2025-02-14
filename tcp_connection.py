@@ -39,7 +39,7 @@ def send_hand_side(label: HandSide):
 
 
 def request_screenshot(ip_address: str):
-    message = b'screenshot-' + ip_address.encode()
+    message = ('screenshot-' + ip_address).encode()
     messages_queue.put(message)
 
 
