@@ -1,11 +1,13 @@
 import socket
 import threading
+from email_sender import send_the_email
 from enum import Enum
-from queue import Queue
 from threading import Event
 from time import sleep
-
 from hand_side import HandSide
+from queue import Queue
+
+
 
 SERVER_IP = '10.76.107.250'  # Server IP address (localhost in this case)
 SERVER_PORT = 12345  # Same port as the server
@@ -52,6 +54,7 @@ def handle_authentication(client_socket):
             if response == AuthenticationStatus.RECEIVED_OK.value:
                 continue
             elif response == AuthenticationStatus.RECEIVED_FAILED.value:
+                send_the_email()
                 return False
             elif response == AuthenticationStatus.RECEIVED_PASSED.value:
                 return True
