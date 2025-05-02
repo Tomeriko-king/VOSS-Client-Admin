@@ -10,6 +10,10 @@ from email.mime.image import MIMEImage
 from security_picture import security_picture
 from datetime import datetime
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 class EmailSender:
     def __init__(self, sender: str, password: str):
