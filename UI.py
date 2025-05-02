@@ -1,3 +1,5 @@
+from threading import Thread
+
 from hand_capture import capture_video
 
 from PyQt6.QtGui import QPixmap
@@ -6,14 +8,15 @@ from PIL import ImageGrab
 from PIL import Image
 from datetime import datetime
 
-from tcp_connection import request_screenshot
+from tcp_connection import get_auth_status, send_target_ip, wait_for_target_screenshot
+from voss_socket import AuthenticationStatus
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.success_login = False
+        self.success_login = True
         self.setStyleSheet("background-color: darkGray;")
         self.button2 = QPushButton("PASSWORD", self)
 
@@ -56,30 +59,40 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Button Command Example")
 
     def on_button_click_password(self):
+        if self.success_login:
+            return
+
         capture_video()
+        if get_auth_status() != AuthenticationStatus.RECEIVED_PASSED:
+            self.close()
+            return
+
+        self.success_login = True
 
     # Method that will be called when the button is clicked
     def on_button_click(self):
-        if self.success_login:
-            text = self.text_box.text()
-            request_screenshot(text)
-
-            now = datetime.now()
-            self.setWindowTitle(now.strftime("%d/%m/%Y %H:%M:%S"))
-            tmp_image = QPixmap('screenshot_small.png')
-            self.image_label.setPixmap(tmp_image)
-            self.image_label.resize(800, 600)
-        else:
+        if not self.success_login:
             print("failed to log in")
+            return
+
+        target_ip = self.text_box.text()
+
+        send_target_ip(target_ip)
+
+        filename = wait_for_target_screenshot()
 
 
+        now = datetime.now()
+        self.setWindowTitle(target_ip + ": " + now.strftime("%d/%m/%Y %H:%M:%S"))
+        tmp_image = QPixmap(filename)
+        self.image_label.setPixmap(tmp_image)
+        self.image_label.resize(800, 600)
 
-def start_gui():
+
+def gui_loop():
     app = QApplication([])
 
     window = MainWindow()
     window.show()
 
     app.exec()
-
-start_gui()

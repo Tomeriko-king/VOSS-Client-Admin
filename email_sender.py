@@ -20,7 +20,6 @@ class EmailSender:
         self.sender = sender
         self.password = password
 
-
     def send_email(self, subject: str, body: str, image_path: str, recipients: list[str]) -> None:
         msg = MIMEMultipart()
 
@@ -37,7 +36,6 @@ class EmailSender:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
             smtp_server.login(self.sender, self.password)
             smtp_server.sendmail(self.sender, recipients, msg.as_string())
-
 
 
 def send_the_email():

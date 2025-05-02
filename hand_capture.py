@@ -5,8 +5,8 @@ import mediapipe as mp
 import cv2
 from google.protobuf.json_format import MessageToDict
 
-from hand_side import HandSide
-from tcp_connection import send_hand_side,authentication_finished_event
+from tcp_connection import send_hand_side, get_auth_status
+from voss_socket import HandSide, AuthenticationStatus
 
 
 def init_hands_model():
@@ -31,7 +31,7 @@ class HandCaptureResult:
         motion_detected = bool(model_result.multi_hand_landmarks)
         if motion_detected:
             raised_hand_side = MessageToDict(model_result.multi_handedness[0])['classification'][0]['label']
-            raised_hand_side = HandSide(raised_hand_side)
+            raised_hand_side = HandSide(raised_hand_side.encode())
         else:
             raised_hand_side = None
 
@@ -52,7 +52,7 @@ def capture_video() -> None:
     cap = cv2.VideoCapture(0)
     motion_changed = True
 
-    while not authentication_finished_event.is_set():
+    while get_auth_status() == AuthenticationStatus.RECEIVED_OK:
         _, img = cap.read()
         img = process_image(img)
 

@@ -1,14 +1,20 @@
-from tcp_connection import start_tcp_connection
+from threading import Thread
+
+from UI import gui_loop
+from email_sender import send_the_email
+from tcp_connection import tcp_connection_loop
 from hand_capture import capture_video
 
 
 def main():
-    session_thread = start_tcp_connection()
+    ui_thread = Thread(target=gui_loop)
+    connection_thread = Thread(target=tcp_connection_loop)
 
-    capture_video()
-    # TODO start ui
+    ui_thread.start()
+    connection_thread.start()
 
-    session_thread.join()
+    ui_thread.join()
+    connection_thread.join()
 
 
 if __name__ == '__main__':
