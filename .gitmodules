@@ -1,0 +1,3 @@
+[submodule "VOSS-Socket"]
+	path = VOSS-Socket
+	url = https://github.com/Tomeriko-king/VOSS-Socket
