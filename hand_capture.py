@@ -55,6 +55,7 @@ def capture_video() -> None:
     while get_auth_status() == AuthenticationStatus.RECEIVED_OK:
         _, img = cap.read()
         img = process_image(img)
+        cv2.imshow('Camera', img)
 
         hand_capture_result = HandCaptureResult.from_model_result(hands.process(img))
 
