@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.success_login = True
+        self.success_login = False
         self.setStyleSheet("background-color: darkGray;")
         self.button2 = QPushButton("PASSWORD", self)
 
