@@ -97,6 +97,9 @@ def set_target_screenshot(result: str):
 
 
 def wait_for_target_screenshot() -> str:
+    global target_screenshot_filename
     with screenshot_filename_condition:
         screenshot_filename_condition.wait_for(lambda: target_screenshot_filename != '')
-        return target_screenshot_filename
+        screenshot_filename = target_screenshot_filename
+        target_screenshot_filename = ''
+        return screenshot_filename
