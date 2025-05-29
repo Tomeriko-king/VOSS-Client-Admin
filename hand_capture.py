@@ -54,9 +54,11 @@ def capture_video() -> None:
 
     while get_auth_status() == AuthenticationStatus.RECEIVED_OK:
         _, img = cap.read()
-        img = process_image(img)
-        cv2.imshow('Camera', img)
 
+        cv2.imshow('Camera', img)
+        cv2.waitKey(1)
+
+        img = process_image(img)
         hand_capture_result = HandCaptureResult.from_model_result(hands.process(img))
 
         if hand_capture_result.motion_detected:
@@ -67,3 +69,5 @@ def capture_video() -> None:
 
         else:
             motion_changed = True
+
+    cv2.destroyAllWindows()
