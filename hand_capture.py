@@ -5,7 +5,7 @@ import mediapipe as mp
 import cv2
 from google.protobuf.json_format import MessageToDict
 
-from tcp_connection import send_hand_side, get_auth_status
+from client_connection import send_hand_side, get_auth_status
 from voss_socket import HandSide, AuthenticationStatus
 
 

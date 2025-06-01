@@ -2,7 +2,7 @@ from threading import Thread
 
 from UI import gui_loop
 from email_sender import send_the_email
-from tcp_connection import tcp_connection_loop
+from client_connection import tcp_connection_loop
 from hand_capture import capture_video
 
 

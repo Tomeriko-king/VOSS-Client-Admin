@@ -8,7 +8,7 @@ from PIL import ImageGrab
 from PIL import Image
 from datetime import datetime
 
-from tcp_connection import get_auth_status, send_target_ip, wait_for_target_screenshot
+from client_connection import get_auth_status, send_target_ip, wait_for_target_screenshot
 from voss_socket import AuthenticationStatus
 
 
