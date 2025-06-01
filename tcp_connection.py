@@ -1,4 +1,7 @@
 import socket
+
+from Lib.test.test_linecache import EMPTY
+
 from email_sender import send_the_email
 from enum import Enum
 from threading import Event, Lock, Condition
@@ -19,46 +22,88 @@ auth_status_lock = Lock()
 
 
 def tcp_connection_loop():
-    # TODO create class
     def process_hand_side(client_socket: VOSSSocketClientAdmin, hand_side: HandSide) -> AuthenticationStatus:
-        client_socket.send_hand_side_auth_request(hand_side)
+        try:
+            client_socket.send_hand_side_auth_request(hand_side)
+            return client_socket.recv_hand_side_auth_response()
 
-        return client_socket.recv_hand_side_auth_response()
+        #todo
+        except Exception as e:
+            print(f"[ERROR] Failed to process hand side auth: {e}")
+            return AuthenticationStatus.RECEIVED_FAILED
+
 
     def process_target_ip_screenshot(client_socket: VOSSSocketClientAdmin, target_ip: str) -> str:
-        client_socket.send_screenshot_from_target_request(target_ip)
-        client_socket.recv_screenshot_from_target_response('screenshot.jpg')
-        return 'screenshot.jpg'
+        try:
+            client_socket.send_screenshot_from_target_request(target_ip)
+            client_socket.recv_screenshot_from_target_response('screenshot.jpg')
+            return 'screenshot.jpg'
 
-    # Create a socket object
-    client_socket = VOSSSocketClientAdmin()
+        #todo
+        except Exception as e:
+            print(f"[ERROR] Failed to get screenshot from {target_ip}: {e}")
+            return ''
 
-    # Connect to the server
-    client_socket.connect(SERVER_IP)
-    print(f"Connected to server at {SERVER_IP}")
+    try:
+        # Create a socket object
+        client_socket = VOSSSocketClientAdmin()
+        # Connect to the server
+        client_socket.connect(SERVER_IP)
+        print(f"Connected to server at {SERVER_IP}")
 
-    # Start authentication
-    while True:
-        hand_side = hands_to_send.get()
-        auth_status = process_hand_side(client_socket, hand_side)
-        set_auth_status(auth_status)
+    #todo
+    except Exception as e:
+        print(f"[ERROR] Could not connect to server: {e}")
+        return
 
-        if auth_status == AuthenticationStatus.RECEIVED_OK:
-            continue
-        elif auth_status == AuthenticationStatus.RECEIVED_PASSED:
-            break
-        elif auth_status == AuthenticationStatus.RECEIVED_FAILED:
-            client_socket.close()
-            sleep(0.1)  # Let authentication camera shutdown
-            send_the_email()
-            return
-        else:
-            continue
+    try:
 
-    while True:
-        target_ip = target_ips_to_send.get()
-        filename = process_target_ip_screenshot(client_socket, target_ip)
-        set_target_screenshot(filename)
+        # Start authentication
+        while True:
+            hand_side = hands_to_send.get(timeout= 2)
+            auth_status = process_hand_side(client_socket, hand_side)
+            set_auth_status(auth_status)
+
+            if auth_status == AuthenticationStatus.RECEIVED_OK:
+                continue
+            elif auth_status == AuthenticationStatus.RECEIVED_PASSED:
+                break
+            elif auth_status == AuthenticationStatus.RECEIVED_FAILED:
+                try:
+                    client_socket.close()
+
+                #todo
+                except Exception as e:
+                    print(f"[WARN] Failed to close socket: {e}")
+
+                sleep(0.1)  # Let authentication camera shutdown
+                try:
+                    send_the_email()
+
+                #todo
+                except Exception as e:
+                    print(f"[ERROR] Failed to send email: {e}")
+
+                return
+            else:
+                continue
+
+        while True:
+            try:
+                target_ip = target_ips_to_send.get()
+            except EMPTY:
+                continue
+
+            filename = process_target_ip_screenshot(client_socket, target_ip)
+            set_target_screenshot(filename)
+
+
+    except:
+            print(f"[FATAL] Unexpected error in main loop")
+            try:
+                client_socket.close()
+            except:
+                pass
 
 
 # Function to export

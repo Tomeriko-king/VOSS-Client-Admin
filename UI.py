@@ -77,16 +77,22 @@ class MainWindow(QMainWindow):
 
         target_ip = self.text_box.text()
 
-        send_target_ip(target_ip)
+        try:
 
-        filename = wait_for_target_screenshot()
+            send_target_ip(target_ip)
+
+            filename = wait_for_target_screenshot()
 
 
-        now = datetime.now()
-        self.setWindowTitle(target_ip + ": " + now.strftime("%d/%m/%Y %H:%M:%S"))
-        tmp_image = QPixmap(filename)
-        self.image_label.setPixmap(tmp_image)
-        self.image_label.resize(800, 600)
+            now = datetime.now()
+            self.setWindowTitle(target_ip + ": " + now.strftime("%d/%m/%Y %H:%M:%S"))
+            tmp_image = QPixmap(filename)
+            self.image_label.setPixmap(tmp_image)
+            self.image_label.resize(800, 600)
+
+        except:
+            print("failed in accessing to the given ip.")
+            breakpoint()
 
 
 def gui_loop():
